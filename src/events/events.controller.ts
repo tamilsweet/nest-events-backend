@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from "@nestjs/common";
-import { CreateEventDto } from './input/create-event.dto';
-import { Event } from './event.entity';
-import { UpdateEventDto } from "./input/update-event.dto";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Like, MoreThan, Repository } from "typeorm";
+import { Event } from './event.entity';
+import { CreateEventDto } from './input/create-event.dto';
+import { UpdateEventDto } from "./input/update-event.dto";
 
 @Controller('/events')
 export class EventsController {
@@ -18,15 +18,48 @@ export class EventsController {
     return await this.eventsRepository.find();
   }
 
+  @Get('/practice')
+  async practice(): Promise<Event[]> {
+    const events = await this.eventsRepository.find({
+      select: ['id', 'name', 'when', 'address', 'description'],
+      // where: { id: 3 }
+
+      // where: { id: MoreThan(3) }
+
+      // AND condition in where clause
+      // where: {
+      //   id: MoreThan(3),
+      //   when: MoreThan(new Date('2023-03-10T10:00:00'))
+      // }
+
+      // OR condition in where clause
+      where: [{
+        id: MoreThan(3),
+        when: MoreThan(new Date('2023-03-10T10:00:00'))
+      }, {
+        description: Like('%meet%')
+      }],
+      take: 2,
+      skip: 1,
+      order: {
+        id: 'DESC'
+      }
+    });
+    return events;
+  }
+
   // Get one event from the database
   @Get(':id')
-  async findOne(@Param('id') id): Promise<Event> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Event> {
     return await this.eventsRepository.findOneBy({ id });
   }
 
   // Create a new event in the database
+  // TODO: Handle exceptions if when field is not a valid date
+  //   [Nest] 20196  - 18/03/2023, 2:39:09 pm   ERROR [ExceptionsHandler] ER_BAD_NULL_ERROR: Column 'when' cannot be null
+  // QueryFailedError: ER_BAD_NULL_ERROR: Column 'when' cannot be null
   @Post()
-  async create(@Body() input: CreateEventDto): Promise<Event> {
+  async create(@Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto): Promise<Event> {
     const event = {
       ...input,
       when: new Date(input.when)
@@ -35,8 +68,12 @@ export class EventsController {
   }
 
   // Update an event in the database
+  // INFO: Need to disable global validation pipe to use groups
   @Patch(':id')
-  async update(@Param('id') id, @Body() input: UpdateEventDto): Promise<Event> {
+  async update(
+    @Param('id') id,
+    @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto
+  ): Promise<Event> {
     const event = await this.eventsRepository.findOneBy({ id });
 
     return await this.eventsRepository.save({
@@ -47,6 +84,7 @@ export class EventsController {
   }
 
   // Delete an event from the database
+  // TODO: Handle when event is null
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id') id): Promise<void> {

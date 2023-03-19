@@ -1,7 +1,11 @@
 ## Events Application
 
+### For Database ORM
 ```
 npm install --save @nestjs/typeorm typeorm mysql
+```
+### For Validations
+```
 npm install --save class-validator class-transformer
 ```
 
