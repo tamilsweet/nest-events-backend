@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Logger, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Like, MoreThan, Repository } from "typeorm";
 import { Event } from './event.entity';
@@ -7,6 +7,9 @@ import { UpdateEventDto } from "./input/update-event.dto";
 
 @Controller('/events')
 export class EventsController {
+
+  private readonly logger = new Logger(EventsController.name);
+
   constructor(
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>
@@ -15,7 +18,10 @@ export class EventsController {
   // Get all events from the database
   @Get()
   async findAll(): Promise<Event[]> {
-    return await this.eventsRepository.find();
+    this.logger.log('Getting all events');
+    const events = await this.eventsRepository.find();
+    this.logger.debug(`Found ${events.length} events`);
+    return events;
   }
 
   @Get('/practice')
