@@ -9,6 +9,11 @@ npm install --save @nestjs/typeorm typeorm mysql
 npm install --save class-validator class-transformer
 ```
 
+### Generate Module
+```
+nest generate module events
+```
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
