@@ -9,6 +9,17 @@ npm install --save @nestjs/typeorm typeorm mysql
 npm install --save class-validator class-transformer
 ```
 
+### For Configurations
+```
+npm install --save @nestjs/config
+```
+
+### For Authentication
+```
+npm install --save @nestjs/jwt passport passport-jwt
+```
+```
+
 ### Generate Module
 ```
 nest generate module events
