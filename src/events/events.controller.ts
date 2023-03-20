@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Like, MoreThan, Repository } from "typeorm";
 import { Event } from './event.entity';
@@ -57,7 +57,13 @@ export class EventsController {
   // Get one event from the database
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Event> {
-    return await this.eventsRepository.findOneBy({ id });
+    const event = await this.eventsRepository.findOneBy({ id });
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+
+    return event;
   }
 
   // Create a new event in the database
@@ -82,6 +88,10 @@ export class EventsController {
   ): Promise<Event> {
     const event = await this.eventsRepository.findOneBy({ id });
 
+    if (!event) {
+      throw new NotFoundException();
+    }
+
     return await this.eventsRepository.save({
       ...event,
       ...input,
@@ -90,11 +100,15 @@ export class EventsController {
   }
 
   // Delete an event from the database
-  // TODO: Handle when event is null
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id') id): Promise<void> {
     const event = await this.eventsRepository.findOneBy({ id });
+    
+    if (!event) {
+      throw new NotFoundException();
+    }
+
     await this.eventsRepository.remove(event);
   }
 }
