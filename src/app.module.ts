@@ -6,7 +6,7 @@ import { AppDummy } from './app.dummy';
 import { AppJapanService } from './app.japan.service';
 import { AppService } from './app.service';
 import ormConfig from './config/orm.config';
-import ormConfigProd from './config/orm.config prod';
+import ormConfigProd from './config/orm.config.prod';
 import { EventsModule } from './events/events.module';
 
 @Module({
