@@ -27,6 +27,46 @@ export class EventsController {
     return events;
   }
 
+  @Get('/practice3')
+  async practice3(): Promise<Event[]> {
+    // Get one event using query builder
+    // return await this.eventsRepository.createQueryBuilder('event')
+    //   .select(['event.id', 'event.name'])
+    //   .where('event.id = :id', { id: 1 })
+    //   .execute();
+
+    return await this.eventsRepository.createQueryBuilder('event')
+      .select(['event.id', 'event.name'])
+      .orderBy('event.id', 'DESC')
+      .getMany();
+
+    // Get one event using query builder and eager load attendees
+    // return await this.eventsRepository.createQueryBuilder('event')
+    //   .select(['event.id', 'event.name'])
+    //   .leftJoinAndSelect('event.attendees', 'attendee')
+    //   .where('event.id = :id', { id: 1 })
+    //   .execute();
+
+    // Get one event using query builder and eager load attendees and their user
+    // return await this.eventsRepository.createQueryBuilder('event')
+    //   .select(['event.id', 'event.name'])
+    //   .leftJoinAndSelect('event.attendees', 'attendee')
+    //   .leftJoinAndSelect('attendee.user', 'user')
+    //   .where('event.id = :id', { id: 1 })
+    //   .execute();
+
+    // Get one event using query builder and eager load attendees and their user and their profile
+    // return await this.eventsRepository.createQueryBuilder('event')
+    //   .select(['event.id', 'event.name'])
+    //   .leftJoinAndSelect('event.attendees', 'attendee')
+    //   .leftJoinAndSelect('attendee.user', 'user')
+    //   .leftJoinAndSelect('user.profile', 'profile')
+    //   .where('event.id = :id', { id: 1 })
+    //   .execute();
+
+
+  }
+
   @Get('/practice2')
   async practice2(): Promise<Event> {
     // Get one event by id
