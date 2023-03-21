@@ -26,4 +26,8 @@ export class Event {
 
   // Virtual property or column that is not stored in the database
   attendeesCount?: number;
+
+  attendeeRejected?: number;
+  attendeeAccepted?: number;
+  attendeeMaybe?: number;
 }

@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Like, MoreThan, Repository } from "typeorm";
 import { Attendee } from "./attendee.entity";
 import { Event } from './event.entity';
 import { EventsService } from "./events.service";
 import { CreateEventDto } from './input/create-event.dto';
+import { ListEvents } from "./input/list-events";
 import { UpdateEventDto } from "./input/update-event.dto";
 
 
@@ -23,10 +24,19 @@ export class EventsController {
 
   // Get all events from the database
   @Get()
-  async findAll(): Promise<Event[]> {
+  // Populate the default values for the query parameters using the ValidationPipe transform option
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async findAll(@Query() filter: ListEvents) {
     this.logger.log('Getting all events');
-    const events = await this.eventsRepository.find();
-    this.logger.debug(`Found ${events.length} events`);
+    const events = await this.eventsService.getEventsWithAttendeesCountFilteredAndPaginated(
+      filter,
+      {
+        limit: filter.limit,
+        total: true,
+        currentPage: filter.page
+      }
+    );
+    // this.logger.debug(`Found ${events.length} events`);
     return events;
   }
 
