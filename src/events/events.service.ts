@@ -22,8 +22,20 @@ export class EventsService {
     return await this.getEventsBaseQuery().getMany();
   }
 
+  public getEventsWithAttendeesCountQuery() {
+    // const query = this.getEventsBaseQuery()
+    //   .addSelect("COUNT(attendee.id)", "attendeesCount")
+    //   .leftJoin("event.attendees", "attendee")
+    //   .groupBy("event.id");
+    // return await query.getMany();
+      const query = this.getEventsBaseQuery()
+        .loadRelationCountAndMap("event.attendeesCount", "event.attendees")
+
+        return query;
+  }
+
   public async getEventById(id: number): Promise<Event | undefined> {
-    const query = this.getEventsBaseQuery()
+    const query = this.getEventsWithAttendeesCountQuery()
       .where("event.id = :id", { id })
 
     this.logger.log(query.getSql());

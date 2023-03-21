@@ -23,4 +23,7 @@ export class Event {
     cascade: ['insert', 'update']
   })
   attendees: Attendee[];
+
+  // Virtual property or column that is not stored in the database
+  attendeesCount?: number;
 }
