@@ -9,6 +9,7 @@ import { User } from './user.entity';
 
 @Injectable()
 export class AuthService {
+
   readonly logger = new Logger(AuthService.name);
 
   constructor(
@@ -32,5 +33,17 @@ export class AuthService {
   public async hashPassword(password: string): Promise<string> {
     // Hash the password
     return await bcrypt.hash(password, 10);
+  }
+
+  public async userExists(username: string, email: string) {
+    return await this.userRepository.findOne({
+      where: [{ username }, { email }],
+    });
+  }
+
+  public async createUser(user: User) {
+    this.logger.log('Creating user...');
+    user.password = await this.hashPassword(user.password);
+    return await this.userRepository.save(user);
   }
 }
