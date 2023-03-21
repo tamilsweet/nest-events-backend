@@ -15,9 +15,15 @@ npm install --save @nestjs/config
 ```
 
 ### For Authentication
+### Local Strategy
 ```
-npm install --save @nestjs/jwt passport passport-jwt
+npm install --save @nestjs/passport passport passport-local
+npm install --save-dev @types/passport-local
 ```
+### JWT Strategy
+```
+npm install --save @nestjs/jwt passport-jwt
+npm install --save-dev @types/passport-jwt
 ```
 
 ### Generate Module
