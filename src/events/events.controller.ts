@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Like, MoreThan, Repository } from "typeorm";
+import { Attendee } from "./attendee.entity";
 import { Event } from './event.entity';
 import { CreateEventDto } from './input/create-event.dto';
 import { UpdateEventDto } from "./input/update-event.dto";
@@ -12,7 +13,9 @@ export class EventsController {
 
   constructor(
     @InjectRepository(Event)
-    private readonly eventsRepository: Repository<Event>
+    private readonly eventsRepository: Repository<Event>,
+    @InjectRepository(Attendee)
+    private readonly attendeesRepository: Repository<Attendee>
   ) { }
 
   // Get all events from the database
@@ -22,6 +25,55 @@ export class EventsController {
     const events = await this.eventsRepository.find();
     this.logger.debug(`Found ${events.length} events`);
     return events;
+  }
+
+  @Get('/practice2')
+  async practice2(): Promise<Event> {
+    // Get one event by id
+    // return await this.eventsRepository.findOneBy({ id: 1 });
+
+    // Get one event by id and eager load attendees
+    // return await this.eventsRepository.findOne({
+    //   select: { id: true },
+    //   where: { id: 1 },
+    //   relations: ['attendees']
+    // });
+
+    // // Create a new attendee and associate it with an event
+    // const event = await this.eventsRepository.findOneBy({ id: 1 });
+    // const attendee = new Attendee();
+    // attendee.name = 'John Doe';
+    // attendee.event = event;
+    // // Save the attendee to the database
+    // await this.attendeesRepository.save(attendee);
+    // // TODO: Fix attendee not being add to event.attendees list
+    // return event;
+
+    const event = await this.eventsRepository.findOne({
+      where: { id: 1 },
+      relations: ['attendees']
+    });
+    const attendee = new Attendee();
+    attendee.name = 'John Doe New';
+    event.attendees.push(attendee);
+
+    // Save the attendee to the database
+    await this.eventsRepository.save(event);
+    return event;
+
+    // Get one event by id and eager load attendees and their user
+    // return await this.eventsRepository.findOne({
+    //   select: { id: true },
+    //   where: { id: 1 },
+    //   relations: ['attendees', 'attendees.user']
+    // });
+
+    // Get one event by id and eager load attendees and their user and their profile
+    // return await this.eventsRepository.findOne({
+    //   select: { id: true },
+    //   where: { id: 1 },
+    //   relations: ['attendees', 'attendees.user', 'attendees.user.profile']
+    // });
   }
 
   @Get('/practice')
@@ -104,7 +156,7 @@ export class EventsController {
   @HttpCode(204)
   async remove(@Param('id') id): Promise<void> {
     const event = await this.eventsRepository.findOneBy({ id });
-    
+
     if (!event) {
       throw new NotFoundException();
     }
