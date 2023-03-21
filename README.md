@@ -26,6 +26,12 @@ npm install --save @nestjs/jwt passport-jwt
 npm install --save-dev @types/passport-jwt
 ```
 
+### Encryption
+```
+npm install --save bcrypt
+npm install --save-dev @types/bcrypt
+```
+
 ### Generate Module
 ```
 nest generate module events

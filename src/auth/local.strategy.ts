@@ -2,9 +2,9 @@
 
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { AuthService } from './auth.service';
-
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    if (user.password !== password) {
+    if (!(await bcrypt.compare(user.password, password))) {
       this.logger.debug(`Invalid credentials for user ${username}`);
       throw new UnauthorizedException();
     }
