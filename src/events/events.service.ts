@@ -4,7 +4,7 @@ import { User } from "src/auth/user.entity";
 import { paginate, PaginateOptions } from "src/pagination/paginator";
 import { DeleteResult, Repository } from "typeorm";
 import { AttendeeStatusEnum } from "./attendee.entity";
-import { Event } from "./event.entity";
+import { Event, PaginatedEvents } from "./event.entity";
 import { CreateEventDto } from "./input/create-event.dto";
 import { ListEvents, WhenEventFilterEnum } from "./input/list-events";
 import { UpdateEventDto } from "./input/update-event.dto";
@@ -128,5 +128,20 @@ export class EventsService {
       when: input.when ? new Date(input.when) : event.when
     }
     return await this.eventsRepository.save(updatedEvent);
+  }
+
+  private async getEventsByOrganizerIdQuery(organizerId: number) {
+    return this.getEventsBaseQuery()
+      .where("event.organizerId = :organizerId", { organizerId })
+  }
+
+  public async getEventsByOrganizerIdFilteredAndPaginated(
+    organizerId: number,
+    paginateOptions: PaginateOptions
+  ): Promise<PaginatedEvents> {
+    return await paginate<Event>(
+      await this.getEventsByOrganizerIdQuery(organizerId),
+      paginateOptions
+    );
   }
 }
