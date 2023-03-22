@@ -1,5 +1,6 @@
 // Add entity for attendees
 import { Expose } from 'class-transformer';
+import { User } from 'src/auth/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Event } from './event.entity';
 
@@ -30,10 +31,24 @@ export class Attendee {
   })
   event: Event;
 
+  @Column()
+  eventId: number;
+
   @Column('enum', {
     enum: AttendeeStatusEnum,
     default: AttendeeStatusEnum.ATTENDING
   })
   @Expose()
   answer: AttendeeStatusEnum;
+
+  @ManyToOne(() => User, (user) => user.attended, {
+    nullable: true
+  })
+  @JoinColumn({
+    name: 'userId'
+  })
+  user: User;
+
+  @Column()
+  userId: number;
 }
