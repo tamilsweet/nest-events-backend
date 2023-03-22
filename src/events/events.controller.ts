@@ -1,5 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { AuthGuardJwt } from "src/auth/auth-guard.jwt";
+import { CurrentUser } from "src/auth/current-user.decorator";
+import { User } from "src/auth/user.entity";
 import { Like, MoreThan, Repository } from "typeorm";
 import { Attendee } from "./attendee.entity";
 import { Event } from './event.entity';
@@ -176,12 +179,12 @@ export class EventsController {
   //   [Nest] 20196  - 18/03/2023, 2:39:09 pm   ERROR [ExceptionsHandler] ER_BAD_NULL_ERROR: Column 'when' cannot be null
   // QueryFailedError: ER_BAD_NULL_ERROR: Column 'when' cannot be null
   @Post()
-  async create(@Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto): Promise<Event> {
-    const event = {
-      ...input,
-      when: new Date(input.when)
-    }
-    return await this.eventsRepository.save(event);
+  @UseGuards(AuthGuardJwt)
+  async create(
+    @Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto,
+    @CurrentUser() user: User
+  ): Promise<Event> {
+    return await this.eventsService.createEvent(input, user);
   }
 
   // Update an event in the database

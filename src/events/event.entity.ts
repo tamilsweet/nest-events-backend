@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/auth/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Attendee } from "./attendee.entity";
 
 @Entity()
@@ -23,6 +24,15 @@ export class Event {
     cascade: ['insert', 'update']
   })
   attendees: Attendee[];
+
+  @ManyToOne(() => User, (user) => user.organized, { eager: false })
+  @JoinColumn({ name: 'organizerId' })
+  organizer: User;
+
+  @Column({ 
+    nullable: true
+  })
+  organizerId: number;
 
   // Virtual property or column that is not stored in the database
   attendeesCount?: number;
