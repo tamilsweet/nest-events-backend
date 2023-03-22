@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AuthGuardJwt } from "src/auth/auth-guard.jwt";
 import { CurrentUser } from "src/auth/current-user.decorator";
@@ -190,31 +190,44 @@ export class EventsController {
   // Update an event in the database
   // INFO: Need to disable global validation pipe to use groups
   @Patch(':id')
+  @UseGuards(AuthGuardJwt)
   async update(
     @Param('id') id,
-    @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto
+    @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto,
+    @CurrentUser() user: User
   ): Promise<Event> {
-    const event = await this.eventsRepository.findOneBy({ id });
+    const event = await this.eventsService.getEventById(id);
 
     if (!event) {
       throw new NotFoundException();
     }
 
-    return await this.eventsRepository.save({
-      ...event,
-      ...input,
-      when: input.when ? new Date(input.when) : event.when
-    });
+    if (event.organizerId !== user.id) {
+      throw new ForbiddenException(null, 'You are not authorized to change this event.');
+    }
+
+    return this.eventsService.updateEventById(event, input);
   }
 
   // Delete an event from the database
   @Delete(':id')
   @HttpCode(204)
-  async remove(@Param('id') id): Promise<void> {
-    const result = await this.eventsService.deleteEventById(id);
+  @UseGuards(AuthGuardJwt)
+  async remove(
+    @Param('id') id,
+    @CurrentUser() user: User
+  ): Promise<void> {
 
-    if (result?.affected !== 1) {
+    const event = await this.eventsService.getEventById(id);
+
+    if (!event) {
       throw new NotFoundException();
     }
+
+    if (event.organizerId !== user.id) {
+      throw new ForbiddenException(null, 'You are not authorized to delete this event.');
+    }
+
+    await this.eventsService.deleteEventById(id);
   }
 }

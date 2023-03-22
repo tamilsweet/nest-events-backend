@@ -7,6 +7,7 @@ import { AttendeeStatusEnum } from "./attendee.entity";
 import { Event } from "./event.entity";
 import { CreateEventDto } from "./input/create-event.dto";
 import { ListEvents, WhenEventFilterEnum } from "./input/list-events";
+import { UpdateEventDto } from "./input/update-event.dto";
 
 
 @Injectable()
@@ -118,5 +119,14 @@ export class EventsService {
       .delete()
       .where("id = :id", { id })
       .execute();
+  }
+
+  public async updateEventById(event: Event, input: UpdateEventDto): Promise<Event> {
+    const updatedEvent = {
+      ...event,
+      ...input,
+      when: input.when ? new Date(input.when) : event.when
+    }
+    return await this.eventsRepository.save(updatedEvent);
   }
 }
