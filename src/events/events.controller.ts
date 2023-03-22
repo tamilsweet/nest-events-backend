@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, ClassSerializerInterceptor, Controller, Delete, ForbiddenException, Get, HttpCode, Logger, NotFoundException, Param, ParseIntPipe, Patch, Post, Query, SerializeOptions, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AuthGuardJwt } from "src/auth/auth-guard.jwt";
 import { CurrentUser } from "src/auth/current-user.decorator";
@@ -13,6 +13,9 @@ import { UpdateEventDto } from "./input/update-event.dto";
 
 
 @Controller('/events')
+@SerializeOptions({
+  strategy: 'excludeAll'
+})
 export class EventsController {
 
   private readonly logger = new Logger(EventsController.name);
@@ -29,6 +32,7 @@ export class EventsController {
   @Get()
   // Populate the default values for the query parameters using the ValidationPipe transform option
   @UsePipes(new ValidationPipe({ transform: true }))
+  @UseInterceptors(ClassSerializerInterceptor)
   async findAll(@Query() filter: ListEvents) {
     this.logger.log('Getting all events');
     const events = await this.eventsService.getEventsWithAttendeesCountFilteredAndPaginated(
@@ -164,6 +168,7 @@ export class EventsController {
 
   // Get one event from the database
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const event = await this.eventsService.getEventById(id);
 
@@ -180,6 +185,7 @@ export class EventsController {
   // QueryFailedError: ER_BAD_NULL_ERROR: Column 'when' cannot be null
   @Post()
   @UseGuards(AuthGuardJwt)
+  @UseInterceptors(ClassSerializerInterceptor)
   async create(
     @Body(new ValidationPipe({ groups: ['create'] })) input: CreateEventDto,
     @CurrentUser() user: User
@@ -191,6 +197,7 @@ export class EventsController {
   // INFO: Need to disable global validation pipe to use groups
   @Patch(':id')
   @UseGuards(AuthGuardJwt)
+  @UseInterceptors(ClassSerializerInterceptor)
   async update(
     @Param('id') id,
     @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto,

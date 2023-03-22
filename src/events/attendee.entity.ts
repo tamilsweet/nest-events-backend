@@ -1,4 +1,5 @@
 // Add entity for attendees
+import { Expose } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Event } from './event.entity';
 
@@ -11,9 +12,11 @@ export enum AttendeeStatusEnum {
 @Entity()
 export class Attendee {
   @PrimaryGeneratedColumn()
+  @Expose()
   id: number;
 
   @Column()
+  @Expose()
   name: string;
 
   // @Column()
@@ -31,5 +34,6 @@ export class Attendee {
     enum: AttendeeStatusEnum,
     default: AttendeeStatusEnum.ATTENDING
   })
+  @Expose()
   answer: AttendeeStatusEnum;
 }

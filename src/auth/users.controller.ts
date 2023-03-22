@@ -1,11 +1,14 @@
 // User Controller
 
-import { BadRequestException, Body, Controller, Logger, Post } from "@nestjs/common";
+import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Logger, Post, SerializeOptions, UseInterceptors } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { CreateUserDto } from "./input/create-user.dto";
 import { User } from "./user.entity";
 
 @Controller("users")
+@SerializeOptions({
+  strategy: 'excludeAll'
+})
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -14,6 +17,7 @@ export class UsersController {
   ) { }
 
   @Post()
+  @UseInterceptors(ClassSerializerInterceptor)
   async create(@Body() createUserDto: CreateUserDto) {
     this.logger.log('Creating user...');
     const user = new User();

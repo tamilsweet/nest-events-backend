@@ -1,5 +1,6 @@
 // Pagination module
 
+import { Expose } from "class-transformer";
 import { SelectQueryBuilder } from "typeorm";
 
 export class PaginateOptions {
@@ -9,10 +10,19 @@ export class PaginateOptions {
 }
 
 export class PaginationResult<T> {
+  constructor(partial: Partial<PaginationResult<T>>) {
+    Object.assign(this, partial);
+  }
+
+  @Expose()
   first: number;
+  @Expose()
   last: number;
+  @Expose()
   total?: number;
+  @Expose()
   limit: number;
+  @Expose()
   data: T[];
 }
 
@@ -29,13 +39,13 @@ export async function paginate<T>(
     .skip(offset)
     .getManyAndCount();
 
-  return {
+  return new PaginationResult({
     first: offset + 1,
     last: offset + data.length,
     total,
     // total: options.total ? await qb.getCount() : null,
     limit: options.limit,
     data,
-  };
+  });
 
 }
