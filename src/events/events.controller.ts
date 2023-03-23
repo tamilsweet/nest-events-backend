@@ -90,7 +90,7 @@ export class EventsController {
   @Get('/practice2')
   async practice2(): Promise<Event> {
     // Get one event by id
-    // return await this.eventsRepository.findOneBy({ id: 1 });
+    return await this.eventsRepository.findOneBy({ id: 1 });
 
     // Get one event by id and eager load attendees
     // return await this.eventsRepository.findOne({
@@ -109,17 +109,17 @@ export class EventsController {
     // // TODO: Fix attendee not being add to event.attendees list
     // return event;
 
-    const event = await this.eventsRepository.findOne({
-      where: { id: 1 },
-      relations: ['attendees']
-    });
-    const attendee = new Attendee();
-    attendee.name = 'John Doe New';
-    event.attendees.push(attendee);
+    // const event = await this.eventsRepository.findOne({
+    //   where: { id: 1 },
+    //   relations: ['attendees']
+    // });
+    // const attendee = new Attendee();
+    // attendee.name = 'John Doe New';
+    // event.attendees.push(attendee);
 
-    // Save the attendee to the database
-    await this.eventsRepository.save(event);
-    return event;
+    // // Save the attendee to the database
+    // await this.eventsRepository.save(event);
+    // return event;
 
     // Get one event by id and eager load attendees and their user
     // return await this.eventsRepository.findOne({
@@ -170,7 +170,7 @@ export class EventsController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const event = await this.eventsService.getEventById(id);
+    const event = await this.eventsService.getEventByIdWithAttendeesCount(id);
 
     if (!event) {
       throw new NotFoundException();
@@ -199,7 +199,7 @@ export class EventsController {
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async update(
-    @Param('id') id,
+    @Param('id', ParseIntPipe) id,
     @Body(new ValidationPipe({ groups: ['update'] })) input: UpdateEventDto,
     @CurrentUser() user: User
   ): Promise<Event> {
@@ -221,7 +221,7 @@ export class EventsController {
   @HttpCode(204)
   @UseGuards(AuthGuardJwt)
   async remove(
-    @Param('id') id,
+    @Param('id', ParseIntPipe) id,
     @CurrentUser() user: User
   ): Promise<void> {
 

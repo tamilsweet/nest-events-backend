@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/auth/user.entity";
 import { paginate, PaginateOptions } from "src/pagination/paginator";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository, SelectQueryBuilder } from "typeorm";
 import { AttendeeStatusEnum } from "./attendee.entity";
 import { Event, PaginatedEvents } from "./event.entity";
 import { CreateEventDto } from "./input/create-event.dto";
@@ -19,7 +19,7 @@ export class EventsService {
     private readonly eventsRepository: Repository<Event>
   ) { }
 
-  private getEventsBaseQuery() {
+  private getEventsBaseQuery(): SelectQueryBuilder<Event> {
     return this.eventsRepository
       .createQueryBuilder("event")
       .orderBy("event.id", "DESC");
@@ -29,7 +29,7 @@ export class EventsService {
     return await this.getEventsBaseQuery().getMany();
   }
 
-  public getEventsWithAttendeesCountQuery() {
+  public getEventsWithAttendeesCountQuery(): SelectQueryBuilder<Event> {
     // const query = this.getEventsBaseQuery()
     //   .addSelect("COUNT(attendee.id)", "attendeesCount")
     //   .leftJoin("event.attendees", "attendee")
@@ -54,7 +54,7 @@ export class EventsService {
     return query;
   }
 
-  private getEventsWithAttendeesCountQueryFiltered(filter?: ListEvents): any {
+  private getEventsWithAttendeesCountFilteredQuery(filter?: ListEvents): SelectQueryBuilder<Event> {
     let query = this.getEventsWithAttendeesCountQuery();
 
     this.logger.debug('Filter is ', filter);
@@ -89,14 +89,14 @@ export class EventsService {
   public async getEventsWithAttendeesCountFilteredAndPaginated(
     filter: ListEvents,
     paginateOptions: PaginateOptions
-  ) {
+  ): Promise<PaginatedEvents> {
     return await paginate(
-      await this.getEventsWithAttendeesCountQueryFiltered(filter),
+      await this.getEventsWithAttendeesCountFilteredQuery(filter),
       paginateOptions
     )
   }
 
-  public async getEventById(id: number): Promise<Event | undefined> {
+  public async getEventByIdWithAttendeesCount(id: number): Promise<Event | undefined> {
     const query = this.getEventsWithAttendeesCountQuery()
       .where("event.id = :id", { id })
 
@@ -104,12 +104,16 @@ export class EventsService {
     return await query.getOne();
   }
 
+  public async getEventById(id: number): Promise<Event | undefined> {
+    return await this.eventsRepository.findOneBy({ id });
+  }
+
   public async createEvent(input: CreateEventDto, user: User): Promise<Event> {
-    const event = {
+    const event = new Event({
       ...input,
       organizer: user,
       when: new Date(input.when)
-    }
+    });
     return await this.eventsRepository.save(event);
   }
 
@@ -122,11 +126,11 @@ export class EventsService {
   }
 
   public async updateEventById(event: Event, input: UpdateEventDto): Promise<Event> {
-    const updatedEvent = {
+    const updatedEvent = new Event({
       ...event,
       ...input,
       when: input.when ? new Date(input.when) : event.when
-    }
+    });
     return await this.eventsRepository.save(updatedEvent);
   }
 
@@ -145,7 +149,7 @@ export class EventsService {
     );
   }
 
-  private async getEventsAttendedByUserIdQuery(userId: number) {
+  private getEventsAttendedByUserIdQuery(userId: number): SelectQueryBuilder<Event> {
     return this.getEventsBaseQuery()
       .leftJoinAndSelect("event.attendees", "attendee")
       .where("attendee.userId = :userId", { userId })

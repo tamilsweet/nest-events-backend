@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Controller, Get, Param, Query, SerializeOptions, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ClassSerializerInterceptor, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Query, SerializeOptions, UseGuards, UseInterceptors } from "@nestjs/common";
 import { AuthGuardJwt } from "src/auth/auth-guard.jwt";
 import { EventsService } from "./events.service";
 
@@ -6,7 +6,7 @@ import { EventsService } from "./events.service";
 @SerializeOptions({
   strategy: "excludeAll"
 })
-export class EventOrganizerController {
+export class EventOrganizedByUserController {
   constructor(
     private readonly eventsService: EventsService
   ) { }
@@ -16,13 +16,13 @@ export class EventOrganizerController {
   @UseGuards(AuthGuardJwt)
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @Param('userId') userId: number,
-    @Query('page') page = 1,
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
   ) {
     return await this.eventsService.getEventsOrganizedByUserIdFilteredAndPaginated(
       userId,
       {
-        currentPage: Number(page),
+        currentPage: page,
         limit: 10
       }
     );

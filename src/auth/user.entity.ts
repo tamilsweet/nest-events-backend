@@ -8,6 +8,11 @@ import { Attendee } from "src/events/attendee.entity";
 
 @Entity()
 export class User {
+
+  constructor(partial?: Partial<User>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   @Expose()
   id: number;
@@ -40,7 +45,9 @@ export class User {
   @Expose()
   organized: Event[];
 
+  // Do not use Expose() decorator here
+  // because we do not want circular references
+  // in the JSON response
   @OneToMany(() => Attendee, (attendee) => attendee.user)
-  @Expose()
   attended: Attendee[];
 }

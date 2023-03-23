@@ -4,7 +4,7 @@ import { Attendee } from './attendee.entity';
 import { AttendeeService } from './attendee.service';
 import { CurrentUserEventAttendanceController } from './current-user-event-attendance.controller';
 import { EventAttendeesController } from './event-attendees.controller';
-import { EventOrganizerController } from './event-organizer.controller';
+import { EventOrganizedByUserController } from './event-organizer.controller';
 import { Event } from './event.entity';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
@@ -16,7 +16,7 @@ import { EventsService } from './events.service';
   controllers: [
     EventsController,
     EventAttendeesController,
-    EventOrganizerController,
+    EventOrganizedByUserController,
     CurrentUserEventAttendanceController
   ],
   providers: [EventsService, AttendeeService]

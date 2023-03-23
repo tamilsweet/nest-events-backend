@@ -3,6 +3,7 @@
 import { BadRequestException, Body, ClassSerializerInterceptor, Controller, Logger, Post, SerializeOptions, UseInterceptors } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { CreateUserDto } from "./input/create-user.dto";
+import { LoginTokenDto } from "./input/login-token.dto";
 import { User } from "./user.entity";
 
 @Controller("users")
@@ -20,7 +21,6 @@ export class UsersController {
   @UseInterceptors(ClassSerializerInterceptor)
   async create(@Body() createUserDto: CreateUserDto) {
     this.logger.log('Creating user...');
-    const user = new User();
 
     if (createUserDto.password !== createUserDto.retypedPassword) {
       throw new BadRequestException(['Passwords do not match']);
@@ -31,15 +31,12 @@ export class UsersController {
       throw new BadRequestException(['Username or Email is already taken']);
     }
 
-    user.username = createUserDto.username;
-    user.password = createUserDto.password;
-    user.email = createUserDto.email;
-    user.firstName = createUserDto.firstName;
-    user.lastName = createUserDto.lastName;
+    const user = await this.authService.createUser(new User(createUserDto));
 
-    return {
-      ...(await this.authService.createUser(user)),
+    const response = new LoginTokenDto({
+      id: user.id,
       token: await this.authService.getTokenForUser(user)
-    };
+    });
+    return response;
   }
 }
