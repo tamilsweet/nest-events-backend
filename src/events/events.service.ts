@@ -160,7 +160,7 @@ export class EventsService {
     paginateOptions: PaginateOptions
   ): Promise<PaginatedEvents> {
     return await paginate<Event>(
-      await this.getEventsAttendedByUserIdQuery(userId),
+      this.getEventsAttendedByUserIdQuery(userId),
       paginateOptions
     );
   }
