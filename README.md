@@ -32,6 +32,16 @@ npm install --save bcrypt
 npm install --save-dev @types/bcrypt
 ```
 
+### For Testing
+```
+npm install --save-dev @nestjs/testing @nestjs/mapped-types
+```
+
+### For Swagger
+```
+npm install --save @nestjs/swagger swagger-ui-express
+```
+
 ### Generate Module
 ```
 nest generate module events

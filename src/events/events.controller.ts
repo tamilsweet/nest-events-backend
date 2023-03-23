@@ -23,8 +23,6 @@ export class EventsController {
   constructor(
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>,
-    @InjectRepository(Attendee)
-    private readonly attendeesRepository: Repository<Attendee>,
     private readonly eventsService: EventsService
   ) { }
 
