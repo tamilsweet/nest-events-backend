@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Query, SerializeOptions, UseGuards, UseInterceptors } from "@nestjs/common";
-import { AuthGuardJwt } from "src/auth/auth-guard.jwt";
+import { AuthGuardJwt } from "./../auth/auth-guard.jwt";
 import { EventsService } from "./events.service";
+
 
 @Controller("event-organizer/:userId")
 @SerializeOptions({

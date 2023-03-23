@@ -1,8 +1,9 @@
 import { Expose } from "class-transformer";
-import { User } from "src/auth/user.entity";
-import { PaginationResult } from "src/pagination/paginator";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./../auth/user.entity";
+import { PaginationResult } from "./../pagination/paginator";
 import { Attendee } from "./attendee.entity";
+
 
 @Entity()
 export class Event {
@@ -43,7 +44,7 @@ export class Event {
   @Expose()
   organizer: User;
 
-  @Column({ 
+  @Column({
     nullable: true
   })
   organizerId: number;
