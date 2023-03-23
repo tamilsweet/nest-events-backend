@@ -19,7 +19,7 @@ export class EventOrganizerController {
     @Param('userId') userId: number,
     @Query('page') page = 1,
   ) {
-    return await this.eventsService.getEventsByOrganizerIdFilteredAndPaginated(
+    return await this.eventsService.getEventsOrganizedByUserIdFilteredAndPaginated(
       userId,
       {
         currentPage: Number(page),

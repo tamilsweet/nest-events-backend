@@ -130,17 +130,33 @@ export class EventsService {
     return await this.eventsRepository.save(updatedEvent);
   }
 
-  private async getEventsByOrganizerIdQuery(organizerId: number) {
+  private async getEventsOrganizedByUserIdQuery(organizerId: number) {
     return this.getEventsBaseQuery()
       .where("event.organizerId = :organizerId", { organizerId })
   }
 
-  public async getEventsByOrganizerIdFilteredAndPaginated(
+  public async getEventsOrganizedByUserIdFilteredAndPaginated(
     organizerId: number,
     paginateOptions: PaginateOptions
   ): Promise<PaginatedEvents> {
     return await paginate<Event>(
-      await this.getEventsByOrganizerIdQuery(organizerId),
+      await this.getEventsOrganizedByUserIdQuery(organizerId),
+      paginateOptions
+    );
+  }
+
+  private async getEventsAttendedByUserIdQuery(userId: number) {
+    return this.getEventsBaseQuery()
+      .leftJoinAndSelect("event.attendees", "attendee")
+      .where("attendee.userId = :userId", { userId })
+  }
+
+  public async getEventsAttendedByUserIdFilteredAndPaginated(
+    userId: number,
+    paginateOptions: PaginateOptions
+  ): Promise<PaginatedEvents> {
+    return await paginate<Event>(
+      await this.getEventsAttendedByUserIdQuery(userId),
       paginateOptions
     );
   }
