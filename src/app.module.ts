@@ -12,16 +12,17 @@ import ormConfigProd from './config/orm.config.prod';
 import { EventsModule } from './events/events.module';
 import { SchoolModule } from './school/school.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: `.env.${process.env.NODE_ENV}`,
       load: [ormConfig, ormConfigProd],
       expandVariables: true
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: process.env.NODE_ENV === 'production' ? ormConfigProd : ormConfig,
+      useFactory: process.env.NODE_ENV === 'prod' ? ormConfigProd : ormConfig,
     }),
     EventsModule,
     SchoolModule,

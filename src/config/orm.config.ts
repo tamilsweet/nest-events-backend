@@ -18,5 +18,6 @@ export default registerAs('orm.config',
     database: process.env.DB_DATABASE,
     entities: [Event, Attendee, Subject, Teacher, User, Profile],
     synchronize: true,
+    dropSchema: Boolean(process.env.DB_DROP_SCHEMA)
   })
 );

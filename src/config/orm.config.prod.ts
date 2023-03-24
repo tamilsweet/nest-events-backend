@@ -16,6 +16,8 @@ export default registerAs('orm.config',
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    entities: [Event, Attendee, Subject, Teacher, User, Profile]
+    entities: [Event, Attendee, Subject, Teacher, User, Profile],
+    synchronize: true,
+    dropSchema: false,
   })
 );
